@@ -1,0 +1,28 @@
+h1 (10.0.0.1)             s1 (OVS switch)            ONOS (172.17.0.2)             h2 (10.0.0.2)
+     |                           |                           |                           |
+     |=========================== PROCESSING PATH (FIRST PACKET) ========================|
+     |                           |                           |                           |
+     |-- 1. ICMP Echo Request -->|                           |                           |
+     |   (seq=1)                 |                           |                           |
+     |                           |-- 2. OFPT_PACKET_IN ----->|                           |
+     |                           |   (header + payload)      |                           |
+     |                           |                           | [Reactive Forward App     |
+     |                           |                           |  computes shortest path]  |
+     |                           |<-- 3. OFPT_FLOW_MOD ------|                           |
+     |                           |    (insert rule h1->h2)   |                           |
+     |                           |<-- 4. OFPT_PACKET_OUT ----|                           |
+     |                           |    (forward packet)       |                           |
+     |                           |                           |                           |
+     |                           |------------------ 5. Forward ICMP Request ----------->|
+     |                           |<----------------- 6. ICMP Reply ----------------------|
+     |<-- 7. ICMP Reply ---------|                                                       |
+     |    (>20 ms total delay)   |                                                       |
+     |                           |                                                       |
+     |=========================== FAST PATH (FOLLOWING PACKETS) =========================|
+     |                           |                                                       |
+     |-- 8. ICMP Echo Request -->|                                                       |
+     |   (seq=2,3,4,5)           |-- 9. Match Flow Table Entry ------------------------->|
+     |                           |   (without ONOS interaction)         		 |
+     |<-- 10. ICMP Reply --------|<------------------------------------------------------|
+     |    (~0.1 ms delay each )  |                                                       |
+     |				 |							 |
