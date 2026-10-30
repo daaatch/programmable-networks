@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# IP address management
+ip addr add 10.0.0.100/24 dev eth0
+ip link set eth0 up
+
+python3 /pox/pox.py openflow.of_01 --port=6653 forwarding.l2_learning > /var/log/pox.log 2>&1 &
