@@ -1,0 +1,15 @@
+ifconfig eth0 192.168.100.1/24 up
+
+ifconfig eth1 up
+ifconfig eth2 up
+
+service openvswitch-switch start
+
+ovs-vsctl add-br br0
+ovs-vsctl set bridge br0 other-config:datapath-id=0000000000000001
+ovs-vsctl set bridge br0 protocol=OpenFlow10
+
+ovs-vsctl add-port br0 eth1
+ovs-vsctl add-port br0 eth2
+
+ovs-vsctl set-controller br0 tcp:192.168.100.100:6633
